@@ -29,7 +29,8 @@ func TestMain(m *testing.M) {
 	var err error
 	pool, err = NewPool(&conf) // 建立连接池
 	if err != nil {
-		fmt.Print(err)
+		fmt.Print(err.Error())
+		return
 	}
 
 	fmt.Println("准备工作")
@@ -100,28 +101,6 @@ func TestPool_GetChannel(t *testing.T) {
 	})
 	if err != nil {
 		t.Error(err)
-	}
-}
-
-func TestPool_GetChannel2(t *testing.T) {
-	for i := 0; i < 3000; i++ {
-		go func(i int) {
-			ch, err := pool.GetChannel()
-			if err != nil {
-				fmt.Println(err)
-			}
-			err = ch.Publish(DiyExchange, DiyRoutingKey, false, false, amqp.Publishing{
-				ContentType:  "text/plain",
-				Body:         []byte(strconv.Itoa(i)),
-				DeliveryMode: amqp.Transient,
-				Priority:     0,
-			})
-			ch.Release()
-			if err != nil {
-				fmt.Println(err)
-			}
-		}(i)
-		time.Sleep(time.Second)
 	}
 }
 
